@@ -110,14 +110,7 @@ func resourceNetboxServiceCreate(d *schema.ResourceData, m interface{}) error {
 	data.Tags = []*models.NestedTag{}
 	ipaddr, ok := d.GetOk("ip_addresses")
 	if ok {
-		var ipAddresses []int64
-
-		if v := ipaddr.(*schema.Set); v.Len() > 0 {
-			for _, v := range v.List() {
-				ipAddresses = append(ipAddresses, int64(v.(int)))
-			}
-			data.Ipaddresses = ipAddresses
-		}
+		data.Ipaddresses = toInt64List(ipaddr)
 	} else {
 		data.Ipaddresses = []int64{}
 	}
@@ -206,13 +199,7 @@ func resourceNetboxServiceUpdate(d *schema.ResourceData, m interface{}) error {
 
 	ipaddr, ok := d.GetOk("ip_addresses")
 	if ok {
-		var ipAddresses []int64
-		if v := ipaddr.(*schema.Set); v.Len() > 0 {
-			for _, v := range v.List() {
-				ipAddresses = append(ipAddresses, int64(v.(int)))
-			}
-			data.Ipaddresses = ipAddresses
-		}
+		data.Ipaddresses = toInt64List(ipaddr)
 	} else {
 		data.Ipaddresses = []int64{}
 	}
