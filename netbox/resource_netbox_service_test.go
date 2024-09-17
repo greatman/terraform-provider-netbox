@@ -35,6 +35,7 @@ resource "netbox_virtual_machine" "test" {
 func TestAccNetboxService_basic(t *testing.T) {
 	testSlug := "svc_basic"
 	testName := testAccGetTestName(testSlug)
+	testDescription := testAccGetTestName(testSlug)
 	resource.ParallelTest(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
@@ -47,9 +48,11 @@ resource "netbox_service" "test" {
   virtual_machine_id = netbox_virtual_machine.test.id
   ports = [666]
   protocol = "tcp"
-}`, testName),
+  description = "%s"
+}`, testName, testDescription),
 				Check: resource.ComposeTestCheckFunc(
 					resource.TestCheckResourceAttr("netbox_service.test", "name", testName),
+					resource.TestCheckResourceAttr("netbox_service.test", "description", testDescription),
 					resource.TestCheckResourceAttrPair("netbox_service.test", "virtual_machine_id", "netbox_virtual_machine.test", "id"),
 					resource.TestCheckResourceAttr("netbox_service.test", "ports.#", "1"),
 					resource.TestCheckResourceAttr("netbox_service.test", "ports.0", "666"),
@@ -58,6 +61,29 @@ resource "netbox_service" "test" {
 			},
 			{
 				ResourceName:      "netbox_service.test",
+				ImportState:       true,
+				ImportStateVerify: true,
+			},
+			{
+				Config: testAccNetboxServiceFullDependencies(testName) + fmt.Sprintf(`
+resource "netbox_ip_address" "test" {
+  ip_address = "1.1.1.1/24"
+  status = "active"
+}
+resource "netbox_service" "test_ip" {
+  name = "%s"
+  virtual_machine_id = netbox_virtual_machine.test.id
+  ports = [666]
+  protocol = "tcp"
+  ip_addresses = [netbox_ip_address.test.id]
+}`, testName),
+				Check: resource.ComposeTestCheckFunc(
+					resource.TestCheckResourceAttr("netbox_service.test_ip", "ip_addresses.#", "1"),
+					resource.TestCheckResourceAttrPair("netbox_service.test_ip", "ip_addresses.0", "netbox_ip_address.test", "id"),
+				),
+			},
+			{
+				ResourceName:      "netbox_service.test_ip",
 				ImportState:       true,
 				ImportStateVerify: true,
 			},

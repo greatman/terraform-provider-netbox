@@ -31,6 +31,11 @@ func resourceNetboxService() *schema.Resource {
 				Required:     true,
 				ValidateFunc: validation.StringLenBetween(1, 100),
 			},
+			"description": {
+				Type:         schema.TypeString,
+				Optional:     true,
+				ValidateFunc: validation.StringLenBetween(1, 200),
+			},
 			"virtual_machine_id": {
 				Type:     schema.TypeInt,
 				Required: true,
@@ -55,6 +60,13 @@ func resourceNetboxService() *schema.Resource {
 					Type: schema.TypeInt,
 				},
 			},
+			"ip_addresses": {
+				Type:     schema.TypeSet,
+				Optional: true,
+				Elem: &schema.Schema{
+					Type: schema.TypeInt,
+				},
+			},
 			customFieldsKey: customFieldsSchema,
 		},
 		Importer: &schema.ResourceImporter{
@@ -68,6 +80,9 @@ func resourceNetboxServiceCreate(d *schema.ResourceData, m interface{}) error {
 
 	dataName := d.Get("name").(string)
 	data.Name = &dataName
+
+	dataDescription := d.Get("description").(string)
+	data.Description = dataDescription
 
 	dataProtocol := d.Get("protocol").(string)
 	data.Protocol = &dataProtocol
@@ -93,7 +108,19 @@ func resourceNetboxServiceCreate(d *schema.ResourceData, m interface{}) error {
 	data.VirtualMachine = &dataVirtualMachineID
 
 	data.Tags = []*models.NestedTag{}
-	data.Ipaddresses = []int64{}
+	ipaddr, ok := d.GetOk("ip_addresses")
+	if ok {
+		var ipAddresses []int64
+
+		if v := ipaddr.(*schema.Set); v.Len() > 0 {
+			for _, v := range v.List() {
+				ipAddresses = append(ipAddresses, int64(v.(int)))
+			}
+			data.Ipaddresses = ipAddresses
+		}
+	} else {
+		data.Ipaddresses = []int64{}
+	}
 
 	ct, ok := d.GetOk(customFieldsKey)
 	if ok {
@@ -127,8 +154,8 @@ func resourceNetboxServiceRead(d *schema.ResourceData, m interface{}) error {
 		}
 		return err
 	}
-
 	d.Set("name", res.GetPayload().Name)
+	d.Set("description", res.GetPayload().Description)
 	d.Set("protocol", res.GetPayload().Protocol.Value)
 	d.Set("ports", res.GetPayload().Ports)
 	d.Set("virtual_machine_id", res.GetPayload().VirtualMachine.ID)
@@ -137,6 +164,12 @@ func resourceNetboxServiceRead(d *schema.ResourceData, m interface{}) error {
 	if cf != nil {
 		d.Set(customFieldsKey, cf)
 	}
+
+	var ipAddresses []int64
+	for _, ip := range res.GetPayload().Ipaddresses {
+		ipAddresses = append(ipAddresses, ip.ID)
+	}
+	d.Set("ip_addresses", ipAddresses)
 
 	return nil
 }
@@ -148,6 +181,9 @@ func resourceNetboxServiceUpdate(d *schema.ResourceData, m interface{}) error {
 
 	dataName := d.Get("name").(string)
 	data.Name = &dataName
+
+	dataDescription := d.Get("description").(string)
+	data.Description = dataDescription
 
 	dataProtocol := d.Get("protocol").(string)
 	data.Protocol = &dataProtocol
@@ -167,7 +203,19 @@ func resourceNetboxServiceUpdate(d *schema.ResourceData, m interface{}) error {
 	}
 
 	data.Tags = []*models.NestedTag{}
-	data.Ipaddresses = []int64{}
+
+	ipaddr, ok := d.GetOk("ip_addresses")
+	if ok {
+		var ipAddresses []int64
+		if v := ipaddr.(*schema.Set); v.Len() > 0 {
+			for _, v := range v.List() {
+				ipAddresses = append(ipAddresses, int64(v.(int)))
+			}
+			data.Ipaddresses = ipAddresses
+		}
+	} else {
+		data.Ipaddresses = []int64{}
+	}
 
 	dataVirtualMachineID := int64(d.Get("virtual_machine_id").(int))
 	data.VirtualMachine = &dataVirtualMachineID
