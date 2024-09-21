@@ -74,7 +74,6 @@ func Provider() *schema.Provider {
 	provider := &schema.Provider{
 		ResourcesMap: map[string]*schema.Resource{
 			"netbox_available_ip_address":       resourceNetboxAvailableIPAddress(),
-			"netbox_virtual_machine":            resourceNetboxVirtualMachine(),
 			"netbox_cluster_type":               resourceNetboxClusterType(),
 			"netbox_cluster":                    resourceNetboxCluster(),
 			"netbox_contact":                    resourceNetboxContact(),
@@ -100,7 +99,6 @@ func Provider() *schema.Provider {
 			"netbox_device_role":                resourceNetboxDeviceRole(),
 			"netbox_tag":                        resourceNetboxTag(),
 			"netbox_cluster_group":              resourceNetboxClusterGroup(),
-			"netbox_site":                       resourceNetboxSite(),
 			"netbox_vlan":                       resourceNetboxVlan(),
 			"netbox_vlan_group":                 resourceNetboxVlanGroup(),
 			"netbox_ipam_role":                  resourceNetboxIpamRole(),
