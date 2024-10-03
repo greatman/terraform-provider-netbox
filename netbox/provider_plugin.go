@@ -32,7 +32,6 @@ type netboxProviderModel struct {
 	Headers                     types.Map    `tfsdk:"headers"`
 	StripTrailingSlashesFromUrl types.Bool   `tfsdk:"strip_trailing_slashes_from_url"`
 	RequestTimeout              types.Int32  `tfsdk:"request_timeout"`
-	CustomFields                types.Map    `tfsdk:"custom_fields"`
 }
 
 func (p *netboxProvider) Configure(ctx context.Context, request provider.ConfigureRequest, response *provider.ConfigureResponse) {
