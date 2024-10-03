@@ -16,9 +16,9 @@ func TestAccNetboxVirtualChassis_basic(t *testing.T) {
 	testName := testAccGetTestName(testSlug)
 
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckVirtualChassisDestroy,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
+		CheckDestroy:             testAccCheckVirtualChassisDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: fmt.Sprintf(`

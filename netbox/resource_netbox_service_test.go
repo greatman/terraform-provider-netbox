@@ -37,9 +37,9 @@ func TestAccNetboxService_basic(t *testing.T) {
 	testName := testAccGetTestName(testSlug)
 	testDescription := testAccGetTestName(testSlug)
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckServiceDestroy,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
+		CheckDestroy:             testAccCheckServiceDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccNetboxServiceFullDependencies(testName) + fmt.Sprintf(`
@@ -95,9 +95,9 @@ func TestAccNetboxService_customFields(t *testing.T) {
 	testSlug := "svc_custom_fields"
 	testName := testAccGetTestName(testSlug)
 	resource.Test(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckServiceDestroy,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
+		CheckDestroy:             testAccCheckServiceDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccNetboxServiceFullDependencies(testName) + fmt.Sprintf(`

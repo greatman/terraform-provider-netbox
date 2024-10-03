@@ -87,7 +87,7 @@ func TestAccNetboxIPAddress_basic(t *testing.T) {
 	testSlug := "ipaddress"
 	testName := testAccGetTestName(testSlug)
 	resource.ParallelTest(t, resource.TestCase{
-		Providers: testAccProviders,
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccNetboxIPAddressFullDependencies(testName) + fmt.Sprintf(`
@@ -237,7 +237,7 @@ func TestAccNetboxIPAddress_deviceByObjectType(t *testing.T) {
 	testSlug := "ipadr_dev_ot"
 	testName := testAccGetTestName(testSlug)
 	resource.ParallelTest(t, resource.TestCase{
-		Providers: testAccProviders,
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccNetboxIPAddressFullDeviceDependencies(testName) + fmt.Sprintf(`
@@ -269,7 +269,7 @@ func TestAccNetboxIPAddress_vmByObjectType(t *testing.T) {
 	testSlug := "ipadr_vm_ot"
 	testName := testAccGetTestName(testSlug)
 	resource.ParallelTest(t, resource.TestCase{
-		Providers: testAccProviders,
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccNetboxIPAddressFullDependencies(testName) + fmt.Sprintf(`
@@ -301,7 +301,7 @@ func TestAccNetboxIPAddress_vmSwitchStyle(t *testing.T) {
 	testSlug := "ipadr_vm_sw"
 	testName := testAccGetTestName(testSlug)
 	resource.ParallelTest(t, resource.TestCase{
-		Providers: testAccProviders,
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccNetboxIPAddressFullDependencies(testName) + fmt.Sprintf(`
@@ -336,7 +336,7 @@ func TestAccNetboxIPAddress_deviceByFieldName(t *testing.T) {
 	testSlug := "ipadr_dev_fn"
 	testName := testAccGetTestName(testSlug)
 	resource.ParallelTest(t, resource.TestCase{
-		Providers: testAccProviders,
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccNetboxIPAddressFullDeviceDependencies(testName) + fmt.Sprintf(`
@@ -366,7 +366,7 @@ func TestAccNetboxIPAddress_vmByFieldName(t *testing.T) {
 	testSlug := "ipadr_vm_fn"
 	testName := testAccGetTestName(testSlug)
 	resource.ParallelTest(t, resource.TestCase{
-		Providers: testAccProviders,
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccNetboxIPAddressFullDependencies(testName) + fmt.Sprintf(`
@@ -395,7 +395,7 @@ resource "netbox_ip_address" "test" {
 func TestAccNetboxIPAddress_standalone(t *testing.T) {
 	testIP := "1.1.1.6/32"
 	resource.ParallelTest(t, resource.TestCase{
-		Providers: testAccProviders,
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
 			{
 				Config: fmt.Sprintf(`
@@ -421,7 +421,7 @@ func TestAccNetboxIPAddress_nat(t *testing.T) {
 	testIP := "1.1.1.10/32"
 	testIPInside := "1.1.1.11/32"
 	resource.ParallelTest(t, resource.TestCase{
-		Providers: testAccProviders,
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
 			{
 				Config: fmt.Sprintf(`
@@ -473,7 +473,7 @@ resource "netbox_ip_address" "inside" {
 func TestAccNetboxIPAddress_invalidConfig(t *testing.T) {
 	testIP := "1.1.1.7/32"
 	resource.ParallelTest(t, resource.TestCase{
-		Providers: testAccProviders,
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
 			{
 				Config: fmt.Sprintf(`

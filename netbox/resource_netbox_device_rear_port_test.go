@@ -73,9 +73,9 @@ func TestAccNetboxDeviceRearPort_basic(t *testing.T) {
 	testSlug := "device_rear_port_basic"
 	testName := testAccGetTestName(testSlug)
 	resource.ParallelTest(t, resource.TestCase{
-		Providers:    testAccProviders,
-		PreCheck:     func() { testAccPreCheck(t) },
-		CheckDestroy: testAccCheckDeviceRearPortDestroy,
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		CheckDestroy:             testAccCheckDeviceRearPortDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccNetboxDeviceRearPortFullDependencies(testName) + fmt.Sprintf(`

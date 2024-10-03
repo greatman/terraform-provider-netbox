@@ -89,7 +89,6 @@ func resourceNetboxInterface() *schema.Resource {
 
 func resourceNetboxInterfaceCreate(ctx context.Context, d *schema.ResourceData, m interface{}) diag.Diagnostics {
 	api := m.(*client.NetBoxAPI)
-
 	var diags diag.Diagnostics
 
 	name := d.Get("name").(string)

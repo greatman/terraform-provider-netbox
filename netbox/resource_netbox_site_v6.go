@@ -18,6 +18,36 @@ import (
 	"github.com/hashicorp/terraform-plugin-framework/types"
 )
 
+// useStateForUnknownModifier implements the plan modifier.
+type generateSlugModifier struct{}
+
+// Description returns a human-readable description of the plan modifier.
+func (m generateSlugModifier) Description(_ context.Context) string {
+	return "Once set, the value of this attribute in state will not change."
+}
+
+// MarkdownDescription returns a markdown description of the plan modifier.
+func (m generateSlugModifier) MarkdownDescription(_ context.Context) string {
+	return "Once set, the value of this attribute in state will not change."
+}
+
+// PlanModifyBool implements the plan modification logic.
+func (m generateSlugModifier) PlanModifyString(ctx context.Context, req planmodifier.StringRequest, resp *planmodifier.StringResponse) {
+
+	// Do nothing if there is a known planned value.
+	if !req.PlanValue.IsUnknown() {
+		return
+	}
+
+	var data netboxSiteModel
+	resp.Diagnostics.Append(req.Plan.Get(ctx, &data)...)
+	resp.PlanValue = types.StringValue(getSlug(data.Name.String()))
+}
+
+func UseGenerateSlugModifier() planmodifier.String {
+	return generateSlugModifier{}
+}
+
 type netboxSiteModel struct {
 	ID              types.Int64   `tfsdk:"id"`
 	Name            types.String  `tfsdk:"name"`
@@ -47,10 +77,14 @@ func generateWritableSite(data *netboxSiteModel, api *client.NetBoxAPI, diag dia
 
 	if !data.Description.IsNull() {
 		site.Description = data.Description.ValueString()
+	} else {
+		site.Description = " "
 	}
 
 	if !data.Facility.IsNull() {
 		site.Facility = data.Facility.ValueString()
+	} else {
+		site.Facility = " "
 	}
 
 	if !data.Longitude.IsNull() {
@@ -63,10 +97,14 @@ func generateWritableSite(data *netboxSiteModel, api *client.NetBoxAPI, diag dia
 
 	if !data.PhysicalAddress.IsNull() {
 		site.PhysicalAddress = data.PhysicalAddress.ValueString()
+	} else {
+		site.PhysicalAddress = " "
 	}
 
 	if !data.ShippingAddress.IsNull() {
 		site.ShippingAddress = data.ShippingAddress.ValueString()
+	} else {
+		site.ShippingAddress = " "
 	}
 
 	if !data.RegionID.IsNull() {
@@ -101,7 +139,7 @@ func generateWritableSite(data *netboxSiteModel, api *client.NetBoxAPI, diag dia
 }
 
 type resourceNetboxSitev6 struct {
-	ApiClient *client.NetBoxAPI
+	provider *netboxProvider
 }
 
 func (r *resourceNetboxSitev6) Configure(ctx context.Context, request resource.ConfigureRequest, response *resource.ConfigureResponse) {
@@ -109,7 +147,7 @@ func (r *resourceNetboxSitev6) Configure(ctx context.Context, request resource.C
 		return
 	}
 
-	api_client, ok := request.ProviderData.(*client.NetBoxAPI)
+	provider, ok := request.ProviderData.(*netboxProvider)
 	if !ok {
 		response.Diagnostics.AddError(
 			"Unexpected Resource Configure Type",
@@ -118,7 +156,7 @@ func (r *resourceNetboxSitev6) Configure(ctx context.Context, request resource.C
 		return
 	}
 
-	r.ApiClient = api_client
+	r.provider = provider
 }
 
 func (r *resourceNetboxSitev6) ImportState(ctx context.Context, request resource.ImportStateRequest, response *resource.ImportStateResponse) {
@@ -144,8 +182,12 @@ func (r *resourceNetboxSitev6) Schema(ctx context.Context, request resource.Sche
 				MarkdownDescription: "",
 			},
 			"slug": schema.StringAttribute{
-				Required:            true,
+				Computed:            true,
+				Optional:            true,
 				MarkdownDescription: "",
+				PlanModifiers: []planmodifier.String{
+					UseGenerateSlugModifier(),
+				},
 				Validators: []validator.String{
 					stringvalidator.LengthBetween(1, 100),
 				}, //TODO : Slug generator, didn't find how to do it yet.
@@ -215,13 +257,12 @@ func (r *resourceNetboxSitev6) Schema(ctx context.Context, request resource.Sche
 func (r *resourceNetboxSitev6) Create(ctx context.Context, request resource.CreateRequest, response *resource.CreateResponse) {
 	var data netboxSiteModel
 	response.Diagnostics.Append(request.Plan.Get(ctx, &data)...)
-
 	if response.Diagnostics.HasError() {
 		return
 	}
 
 	//Validate that the APIClient exist.
-	if r.ApiClient == nil {
+	if r.provider.client == nil {
 		response.Diagnostics.AddError(
 			"Create: Unconfigured API Client",
 			"Expected configured API Client. Please report this issue to the provider developers.",
@@ -229,11 +270,11 @@ func (r *resourceNetboxSitev6) Create(ctx context.Context, request resource.Crea
 		return
 	}
 
-	site := generateWritableSite(&data, r.ApiClient, response.Diagnostics)
+	site := generateWritableSite(&data, r.provider.client, response.Diagnostics)
 
 	params := dcim.NewDcimSitesCreateParams().WithData(&site)
 
-	res, err := r.ApiClient.Dcim.DcimSitesCreate(params, nil)
+	res, err := r.provider.client.Dcim.DcimSitesCreate(params, nil)
 	if err != nil {
 		response.Diagnostics.AddError(
 			"Error while creating the Site",
@@ -248,7 +289,7 @@ func (r *resourceNetboxSitev6) Create(ctx context.Context, request resource.Crea
 }
 
 func (r *resourceNetboxSitev6) Read(ctx context.Context, request resource.ReadRequest, response *resource.ReadResponse) {
-	if r.ApiClient == nil {
+	if r.provider.client == nil {
 		response.Diagnostics.AddError(
 			"Read: Unconfigured API Client",
 			"Expected configured API Client. Please report this issue to the provider developers.",
@@ -264,7 +305,7 @@ func (r *resourceNetboxSitev6) Read(ctx context.Context, request resource.ReadRe
 	response.Diagnostics.Append(request.State.Get(ctx, &data)...)
 
 	params := dcim.NewDcimSitesReadParams().WithID(data.ID.ValueInt64())
-	res, err := r.ApiClient.Dcim.DcimSitesRead(params, nil)
+	res, err := r.provider.client.Dcim.DcimSitesRead(params, nil)
 	if err != nil {
 		if errresp, ok := err.(*dcim.DcimSitesReadDefault); ok {
 			errorcode := errresp.Code()
@@ -288,8 +329,14 @@ func (r *resourceNetboxSitev6) Read(ctx context.Context, request resource.ReadRe
 	}
 	data.Longitude = types.Float64PointerValue(site.Longitude)
 	data.Latitude = types.Float64PointerValue(site.Latitude)
-	data.PhysicalAddress = types.StringValue(site.PhysicalAddress)
-	data.ShippingAddress = types.StringValue(site.ShippingAddress)
+	if site.PhysicalAddress != "" {
+		data.PhysicalAddress = types.StringValue(site.PhysicalAddress)
+	}
+
+	if site.ShippingAddress != "" {
+		data.ShippingAddress = types.StringValue(site.ShippingAddress)
+	}
+
 	if site.Region != nil {
 		data.RegionID = types.Int64Value(site.Region.ID)
 	}
@@ -312,7 +359,7 @@ func (r *resourceNetboxSitev6) Read(ctx context.Context, request resource.ReadRe
 }
 
 func (r *resourceNetboxSitev6) Update(ctx context.Context, request resource.UpdateRequest, response *resource.UpdateResponse) {
-	if r.ApiClient == nil {
+	if r.provider.client == nil {
 		response.Diagnostics.AddError(
 			"Read: Unconfigured API Client",
 			"Expected configured API Client. Please report this issue to the provider developers.",
@@ -325,12 +372,12 @@ func (r *resourceNetboxSitev6) Update(ctx context.Context, request resource.Upda
 	}
 
 	var data netboxSiteModel
-	response.Diagnostics.Append(request.State.Get(ctx, &data)...)
-	site := generateWritableSite(&data, r.ApiClient, response.Diagnostics)
+	response.Diagnostics.Append(request.Plan.Get(ctx, &data)...)
+	site := generateWritableSite(&data, r.provider.client, response.Diagnostics)
 
 	params := dcim.NewDcimSitesPartialUpdateParams().WithID(data.ID.ValueInt64()).WithData(&site)
 
-	_, err := r.ApiClient.Dcim.DcimSitesPartialUpdate(params, nil)
+	_, err := r.provider.client.Dcim.DcimSitesPartialUpdate(params, nil)
 	if err != nil {
 		response.Diagnostics.AddError(
 			"Error while updating the Site",
@@ -343,7 +390,7 @@ func (r *resourceNetboxSitev6) Update(ctx context.Context, request resource.Upda
 }
 
 func (r *resourceNetboxSitev6) Delete(ctx context.Context, request resource.DeleteRequest, response *resource.DeleteResponse) {
-	if r.ApiClient == nil {
+	if r.provider.client == nil {
 		response.Diagnostics.AddError(
 			"Read: Unconfigured API Client",
 			"Expected configured API Client. Please report this issue to the provider developers.",
@@ -359,7 +406,7 @@ func (r *resourceNetboxSitev6) Delete(ctx context.Context, request resource.Dele
 	response.Diagnostics.Append(request.State.Get(ctx, &data)...)
 
 	params := dcim.NewDcimSitesDeleteParams().WithID(data.ID.ValueInt64())
-	_, err := r.ApiClient.Dcim.DcimSitesDelete(params, nil)
+	_, err := r.provider.client.Dcim.DcimSitesDelete(params, nil)
 	if err != nil {
 		if errresp, ok := err.(*dcim.DcimSitesDeleteDefault); ok {
 			if errresp.Code() == 404 {

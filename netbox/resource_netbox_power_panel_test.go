@@ -34,9 +34,9 @@ func TestAccNetboxPowerPanel_basic(t *testing.T) {
 	testSlug := "power_panel_basic"
 	testName := testAccGetTestName(testSlug)
 	resource.ParallelTest(t, resource.TestCase{
-		Providers:    testAccProviders,
-		PreCheck:     func() { testAccPreCheck(t) },
-		CheckDestroy: testAccCheckPowerPanelDestroy,
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		CheckDestroy:             testAccCheckPowerPanelDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccNetboxPowerPanelFullDependencies(testName) + fmt.Sprintf(`

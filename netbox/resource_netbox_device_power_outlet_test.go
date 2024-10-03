@@ -78,9 +78,9 @@ func TestAccNetboxDevicePowerOutlet_basic(t *testing.T) {
 	testSlug := "device_power_outlet_basic"
 	testName := testAccGetTestName(testSlug)
 	resource.ParallelTest(t, resource.TestCase{
-		Providers:    testAccProviders,
-		PreCheck:     func() { testAccPreCheck(t) },
-		CheckDestroy: testAccCheckDevicePowerOutletDestroy,
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		CheckDestroy:             testAccCheckDevicePowerOutletDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccNetboxDevicePowerOutletFullDependencies(testName) + fmt.Sprintf(`

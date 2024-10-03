@@ -17,7 +17,7 @@ testacc: docker-up
 	TF_ACC=1 go test -timeout 20m -v -cover $(TEST)
 
 .PHONY: testacc-specific-test
-testacc-specific-test: # docker-up
+testacc-specific-test: docker-up
 	@echo "⌛ Startup acceptance tests on $(NETBOX_SERVER_URL) with version $(NETBOX_VERSION)"
 	@echo "⌛ Testing function $(TEST_FUNC)"
 	TF_ACC=1 go test -timeout 20m -v -cover $(TEST) -run $(TEST_FUNC)

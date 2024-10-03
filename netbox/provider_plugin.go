@@ -3,6 +3,7 @@ package netbox
 import (
 	"context"
 	"fmt"
+	netboxclient "github.com/fbreckle/go-netbox/netbox/client"
 	"github.com/fbreckle/go-netbox/netbox/client/status"
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
 	"github.com/hashicorp/terraform-plugin-framework/provider"
@@ -20,6 +21,7 @@ func New() provider.Provider {
 }
 
 type netboxProvider struct {
+	client *netboxclient.NetBoxAPI
 }
 
 type netboxProviderModel struct {
@@ -30,6 +32,7 @@ type netboxProviderModel struct {
 	Headers                     types.Map    `tfsdk:"headers"`
 	StripTrailingSlashesFromUrl types.Bool   `tfsdk:"strip_trailing_slashes_from_url"`
 	RequestTimeout              types.Int32  `tfsdk:"request_timeout"`
+	CustomFields                types.Map    `tfsdk:"custom_fields"`
 }
 
 func (p *netboxProvider) Configure(ctx context.Context, request provider.ConfigureRequest, response *provider.ConfigureResponse) {
@@ -100,8 +103,8 @@ func (p *netboxProvider) Configure(ctx context.Context, request provider.Configu
 			response.Diagnostics.AddWarning("Possibly unsupported Netbox version", fmt.Sprintf("Your Netbox version is v%v. The provider was successfully tested against the following versions:\n\n  %v\n\nUnexpected errors may occur.", netboxVersion, strings.Join(supportedVersions, ", ")))
 		}
 	}
-
-	response.ResourceData = netboxClient
+	p.client = netboxClient
+	response.ResourceData = p
 	response.DataSourceData = netboxClient
 }
 
@@ -111,9 +114,7 @@ func (p *netboxProvider) DataSources(ctx context.Context) []func() datasource.Da
 
 func (p *netboxProvider) Resources(ctx context.Context) []func() resource.Resource {
 	return []func() resource.Resource{
-		func() resource.Resource {
-			return &resourceNetboxVirtualMachineV6{}
-		},
+
 		func() resource.Resource {
 			return &resourceNetboxSitev6{}
 		},

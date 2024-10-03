@@ -98,9 +98,9 @@ func TestAccNetboxInterface_basic(t *testing.T) {
 	testName := testAccGetTestName(testSlug)
 	setUp := testAccNetboxInterfaceFullDependencies(testName)
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckInterfaceDestroy,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
+		CheckDestroy:             testAccCheckInterfaceDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: setUp + testAccNetboxInterfaceBasic(testName),
@@ -126,9 +126,9 @@ func TestAccNetboxInterface_opts(t *testing.T) {
 	testName := testAccGetTestName(testSlug)
 	setUp := testAccNetboxInterfaceFullDependencies(testName)
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckInterfaceDestroy,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
+		CheckDestroy:             testAccCheckInterfaceDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: setUp + testAccNetboxInterfaceOpts(testName, testMac, "true"),
@@ -166,9 +166,9 @@ func TestAccNetboxInterface_vlans(t *testing.T) {
 	testName := testAccGetTestName(testSlug)
 	setUp := testAccNetboxInterfaceFullDependencies(testName)
 	resource.ParallelTest(t, resource.TestCase{
-		PreCheck:     func() { testAccPreCheck(t) },
-		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckInterfaceDestroy,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
+		CheckDestroy:             testAccCheckInterfaceDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: setUp + testAccNetboxInterfaceVlans(testName),

@@ -3,6 +3,9 @@ package netbox
 import (
 	"fmt"
 	"github.com/hashicorp/terraform-plugin-testing/helper/resource"
+	"github.com/hashicorp/terraform-plugin-testing/knownvalue"
+	"github.com/hashicorp/terraform-plugin-testing/statecheck"
+	"github.com/hashicorp/terraform-plugin-testing/tfjsonpath"
 	"github.com/hashicorp/terraform-plugin-testing/tfversion"
 	"testing"
 )
@@ -84,20 +87,21 @@ resource "netbox_site" "test" {
 					resource.TestCheckResourceAttr("netbox_site.test", "shipping_address", "Shipping address"),
 					resource.TestCheckResourceAttr("netbox_site.test", "latitude", "12.123456"),
 					resource.TestCheckResourceAttr("netbox_site.test", "longitude", "-13.123456"),
-				)},
+				),
+			},
 			{
 				Config: fmt.Sprintf(`
 resource "netbox_site" "test" {
 	name = "%[1]s"
 	slug = "%[2]s"
 }`, testName, testSlug),
-				Check: resource.ComposeTestCheckFunc(
-					resource.TestCheckResourceAttr("netbox_site.test", "description", ""),
-					resource.TestCheckResourceAttr("netbox_site.test", "physical_address", ""),
-					resource.TestCheckResourceAttr("netbox_site.test", "shipping_address", ""),
-					resource.TestCheckResourceAttr("netbox_site.test", "latitude", "0"),
-					resource.TestCheckResourceAttr("netbox_site.test", "longitude", "0"),
-				),
+				ConfigStateChecks: []statecheck.StateCheck{
+					statecheck.ExpectKnownValue("netbox_site.test", tfjsonpath.New("description"), knownvalue.Null()),
+					statecheck.ExpectKnownValue("netbox_site.test", tfjsonpath.New("physical_address"), knownvalue.Null()),
+					statecheck.ExpectKnownValue("netbox_site.test", tfjsonpath.New("shipping_address"), knownvalue.Null()),
+					statecheck.ExpectKnownValue("netbox_site.test", tfjsonpath.New("latitude"), knownvalue.Null()),
+					statecheck.ExpectKnownValue("netbox_site.test", tfjsonpath.New("longitude"), knownvalue.Null()),
+				},
 			},
 		},
 	})

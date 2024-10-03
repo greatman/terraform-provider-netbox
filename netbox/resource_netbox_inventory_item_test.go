@@ -87,9 +87,9 @@ func TestAccNetboxInventoryItem_basic(t *testing.T) {
 	testSlug := "inventory_item_basic"
 	testName := testAccGetTestName(testSlug)
 	resource.ParallelTest(t, resource.TestCase{
-		Providers:    testAccProviders,
-		PreCheck:     func() { testAccPreCheck(t) },
-		CheckDestroy: testAccCheckInventoryItemDestroy,
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
+		PreCheck:                 func() { testAccPreCheck(t) },
+		CheckDestroy:             testAccCheckInventoryItemDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccNetboxInventoryItemFullDependencies(testName) + fmt.Sprintf(`

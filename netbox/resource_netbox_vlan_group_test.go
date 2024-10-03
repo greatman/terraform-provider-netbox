@@ -29,8 +29,8 @@ func TestAccNetboxVlanGroup_basic(t *testing.T) {
 	testMinVid := "777"
 	testMaxVid := "1777"
 	resource.ParallelTest(t, resource.TestCase{
-		Providers: testAccProviders,
-		PreCheck:  func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
+		PreCheck:                 func() { testAccPreCheck(t) },
 		Steps: []resource.TestStep{
 			{
 				Config: testAccNetboxVlanGroupFullDependencies(testName) + fmt.Sprintf(`
@@ -66,8 +66,8 @@ func TestAccNetboxVlanGroup_with_dependencies(t *testing.T) {
 	testMaxVid := "1777"
 	testDescription := "Test Description"
 	resource.ParallelTest(t, resource.TestCase{
-		Providers: testAccProviders,
-		PreCheck:  func() { testAccPreCheck(t) },
+		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
+		PreCheck:                 func() { testAccPreCheck(t) },
 		Steps: []resource.TestStep{
 			{
 				Config: testAccNetboxVlanGroupFullDependencies(testName) + fmt.Sprintf(`
