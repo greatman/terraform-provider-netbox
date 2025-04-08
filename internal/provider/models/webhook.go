@@ -41,7 +41,7 @@ func (data *WebhookTerraformModel) ReadAPI(ctx context.Context, webhook *netbox.
 	}
 
 	tags := helpers.ReadTagsFromAPI(webhook.Tags)
-	tagsdata, diagdata := types.ListValueFrom(ctx, types.StringType, tags)
+	tagsdata, diagdata := types.ListValueFrom(ctx, types.Int32Type, tags)
 	if diagdata.HasError() {
 		diags.AddError(
 			"Error while reading Webhook",
@@ -51,6 +51,16 @@ func (data *WebhookTerraformModel) ReadAPI(ctx context.Context, webhook *netbox.
 	data.Tags = tagsdata
 
 	customFields, diagData := types.MapValueFrom(ctx, types.StringType, helpers.ReadCustomFieldsFromAPI(webhook.CustomFields))
+	//Let's only add custom fields that we know
+	if data.CustomFields.IsUnknown() || data.CustomFields.IsNull() {
+		data.CustomFields = customFields
+	} else {
+		for k, _ := range data.CustomFields.Elements() {
+			if val, ok := customFields.Elements()[k]; ok {
+				data.CustomFields.Elements()[k] = val
+			}
+		}
+	}
 	if diagData.HasError() {
 		diags.Append()
 	}

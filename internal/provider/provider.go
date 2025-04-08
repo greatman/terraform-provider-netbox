@@ -242,5 +242,8 @@ func (p *netboxProvider) Resources(ctx context.Context) []func() resource.Resour
 		func() resource.Resource {
 			return NewRegionResource()
 		},
+		func() resource.Resource {
+			return NewContactRoleResource()
+		},
 	}
 }

@@ -164,7 +164,7 @@ func (r *webhookResource) Schema(ctx context.Context, req resource.SchemaRequest
 				Default:             booldefault.StaticBool(true),
 			},
 			"tags": schema.ListAttribute{
-				ElementType: types.StringType,
+				ElementType: types.Int32Type,
 				Optional:    true,
 			},
 		},

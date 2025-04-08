@@ -1,0 +1,55 @@
+provider:
+  name: netbox
+data_sources:
+  webhook:
+    read:
+      path: /api/extras/webhooks/{id}/
+      method: GET
+    schema:
+      ignores:
+        - display
+        - display_url
+        - created
+        - last_updated
+        - url
+resources:
+  contact_role:
+    create:
+      path: /api/tenancy/contact-roles/
+      method: POST
+    read:
+      path: /api/tenancy/contact-roles/{id}/
+      method: GET
+    update:
+      path: /api/tenancy/contact-roles/{id}/
+      method: PUT
+    delete:
+      path: /api/tenancy/contact-roles/{id}/
+      method: DELETE
+    schema:
+       ignores:
+         - display
+         - display_url
+         - created
+         - last_updated
+         - url
+  webhook:
+    create:
+      path: /api/extras/webhooks/
+      method: POST
+    read:
+      path: /api/extras/webhooks/{id}/
+      method: GET
+    update:
+      path: /api/extras/webhooks/{id}/
+      method: PUT
+    delete:
+      path: /api/extras/webhooks/{id}/
+      method: DELETE
+    schema:
+      ignores:
+        - display
+        - display_url
+        - created
+        - last_updated
+        - url

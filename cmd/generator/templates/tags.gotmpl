@@ -1,0 +1,9 @@
+tags := helpers.ReadTagsFromAPI(api.Tags)
+tagsdata, diagdata := types.ListValueFrom(ctx, types.Int32Type, tags)
+if diagdata.HasError() {
+    diags.AddError(
+        "Error while reading Tags TODO BETTER",
+        "") //TODO Better handling
+    return diags
+}
+data.Tags = tagsdata

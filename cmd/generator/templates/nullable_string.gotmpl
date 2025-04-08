@@ -1,0 +1,3 @@
+	if api.{{.Variable}}.IsSet() {
+		data.{{.Variable}} = types.StringPointerValue(api.{{.Variable}}.Get())
+	}

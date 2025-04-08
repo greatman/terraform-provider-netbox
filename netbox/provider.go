@@ -80,7 +80,6 @@ func Provider() *schema.Provider {
 			"netbox_contact":                    resourceNetboxContact(),
 			"netbox_contact_group":              resourceNetboxContactGroup(),
 			"netbox_contact_assignment":         resourceNetboxContactAssignment(),
-			"netbox_contact_role":               resourceNetboxContactRole(),
 			"netbox_device":                     resourceNetboxDevice(),
 			"netbox_device_interface":           resourceNetboxDeviceInterface(),
 			"netbox_device_type":                resourceNetboxDeviceType(),

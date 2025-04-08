@@ -1,0 +1,5 @@
+func (data *{{.DataModel}}) ReadAPI(ctx context.Context, api *netbox.{{.ApiMethod}}) diag.Diagnostics {
+	var diags = diag.Diagnostics{}
+    {{.Variables}}
+    return diags
+}
